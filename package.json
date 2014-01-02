@@ -1,0 +1,12 @@
+{
+  "name": "data.gov",
+  "version": "0.0.1",
+  "description": "Parser for Open Data Philly to convert to CCMS format",
+  "main": "parser.js",
+  "dependencies": {
+    "request": "latest"
+  },
+  "repository": "",
+  "author": "",
+  "license": "BSD"
+}
