@@ -22,11 +22,12 @@ request('http://www.opendataphilly.org/api/resources/', function (error, respons
 			  newResource.modified = resources[i].release_date;
 			  newResource.publisher = resources[i].organization;
 			  newResource.accessURL = resources[i].url;
+			  newResource.identifier = resources[i].id;
 			  newResources.push(newResource);
 		  }
   	}
   	//write transformed JSON data, now in CCMS, to a file called CCMSdata.json
-	fs.writeFile("CCMSdata.json", JSON.stringify(newResources), function(err) {
+	fs.writeFile("CCMSdata.json", JSON.stringify(newResources, null, 4), function(err) {
 	    if(err) {
 		console.log(err);
 	    } else {
