@@ -6,6 +6,13 @@ request('http://www.opendataphilly.org/api/resources/', function (error, respons
   	var resources = JSON.parse(body);
 	var newResources = [];
 	//iterates over each object
+	/*for (var j = 0; j< resources.length; j++) {
+	  for (var k = 0; k< resources[j].tags.length; k++)
+	  {
+	  	console.log(k);
+	    console.log(resources[j].tags[k].name);
+	  }
+	}*/
   	for(var i=0; i<resources.length; i++) {
   		var newResource = {};
 		var org = resources[i].organization.toLowerCase();
@@ -14,13 +21,14 @@ request('http://www.opendataphilly.org/api/resources/', function (error, respons
 			  //rename properties to conform with CCMS
 			  newResource.title = resources[i].name;
 			  newResource.description = resources[i].short_description;
-			  newResource.keyword = resources[i].tags[0].name;
+			  for (var j = 0; j <resources[i].tags.length; j++){
+			    newResource.keyword = resources[i].tags[j].name;
+			  }
 			  newResource.modified = resources[i].release_date;
 			  newResource.publisher = resources[i].organization;
 			  newResources.push(newResource);
 		  }
   	}
-	console.log(resources[i].tags[0].name);
 	fs.writeFile("CCMSdata.json", JSON.stringify(newResources), function(err) {
 	    if(err) {
 		console.log(err);
@@ -29,6 +37,11 @@ request('http://www.opendataphilly.org/api/resources/', function (error, respons
 	    }
 	});
 	console.log(newResources);
+	/*
+	for (var j = 0; j < resources.length; j++) {
+	  delete newResources[j].keyword[0].url;
+	  console.log(newResources[j].keyword[0]);
+	}*/
   }
 });
 
