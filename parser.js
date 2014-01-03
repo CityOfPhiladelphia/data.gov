@@ -45,6 +45,7 @@ request(apiEndpoint, function (error, response, body) {
 			  newResource.modified = resources[i].release_date;
 			  newResource.publisher = resources[i].organization;
 			  newResource.accessURL = resources[i].url;
+			  newResource.identifier = resources[i].id;
 
 			  // Push new JSON object onto new resource array.
 			  newResources.push(newResource);
@@ -52,7 +53,7 @@ request(apiEndpoint, function (error, response, body) {
   	}
 
   	// Write transformed JSON data, now in CCMS, to a file called CCMSdata.json.
-	fs.writeFile(dataFile, JSON.stringify(newResources), function(err) {
+	fs.writeFile(dataFile, JSON.stringify(newResources, null, 4), function(err) {
 	    if(err) {
 		console.log(err);
 	    } else {
