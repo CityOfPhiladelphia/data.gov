@@ -12,7 +12,8 @@ function stripSpaces(str) {
 	return str.replace(/(^[\s]+|[\s]+$)/g, '');
 }
 
-// Fetch JSON from AI endpoint.
+
+// Fetch JSON from API endpoint.
 request(apiEndpoint, function (error, response, body) {
 
   if (!error && response.statusCode == 200) {
@@ -43,9 +44,17 @@ request(apiEndpoint, function (error, response, body) {
 			  }
 			  newResource.keyword = nameArray;
 			  newResource.modified = resources[i].release_date;
+			  if (resources[i].release_date == null)
+			  {
+			  	newResource.modified = "2014-01-01";
+			  }
 			  newResource.publisher = resources[i].organization;
-			  newResource.accessURL = resources[i].url;
-			  newResource.identifier = resources[i].id;
+			  newResource.contactPoint = "Office of Chief Data Officer";
+			  newResource.mbox = "data@phila.gov";
+			  newResource.accessURL = "http://www.opendataphilly.org/opendata/resource/" + resources[i].id;
+
+			  newResource.identifier = "" + resources[i].id + "";
+			  newResource.accessLevel = "public";
 
 			  // Push new JSON object onto new resource array.
 			  newResources.push(newResource);
