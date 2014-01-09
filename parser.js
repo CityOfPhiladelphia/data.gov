@@ -1,6 +1,7 @@
 // Include required modules.
 var request = require('request');
 var fs = require('fs');
+var async = require('async');
 
 // Variable declarations.
 var apiEndpoint = 'http://www.opendataphilly.org/api/resources/';
@@ -12,6 +13,12 @@ function stripSpaces(str) {
 	return str.replace(/(^[\s]+|[\s]+$)/g, '');
 }
 
+// New array to hold CCMS JSON objects.
+var newResources = [];
+
+var arrayURL = [];
+var h = 0;
+var w = 0;
 
 // Fetch JSON from API endpoint.
 request(apiEndpoint, function (error, response, body) {
@@ -20,20 +27,17 @@ request(apiEndpoint, function (error, response, body) {
   	// Parse JSON from API.
   	var resources = JSON.parse(body);
 
-  	// New array to hold CCMS JSON objects.
-	var newResources = [];
-
 	// Iterates over each element in the JSON array returned from the API.
   	for(var i=0; i<resources.length; i++) {
-  		
-  		// A new object to hold CCMS compliant JSON.
-  		var newResource = {};
 
   		// The organization value from the source JSON
 		var org = stripSpaces(resources[i].organization.toLowerCase());
 
 		  // If resource's organization is city of philadelphia...
 		  if(org == "city of philadelphia") {
+
+		  	  // A new object to hold CCMS compliant JSON.
+  		      var newResource = {};
 
 			  //rename properties to conform with CCMS
 			  newResource.title = resources[i].name;
@@ -49,35 +53,61 @@ request(apiEndpoint, function (error, response, body) {
 			  	newResource.modified = "2014-01-01";
 			  }
 			  newResource.publisher = resources[i].organization;
-			  newResource.contactPoint = "Office of Chief Data Officer";
-			  newResource.mbox = "data@phila.gov";
 			  newResource.accessURL = "http://www.opendataphilly.org/opendata/resource/" + resources[i].id;
 
 			  newResource.identifier = "" + resources[i].id + "";
 			  newResource.accessLevel = "public";
 
 			  // Push new JSON object onto new resource array.
-			  newResources.push(newResource);
+			  newResources.push(newResource);		  
+
+			  for (var k = 0; k < newResources.length; k++){
+			  	var newURL = {};
+			  	newURL.url = "http://www.opendataphilly.org" + resources[i].url;
+			  }	
+			  arrayURL.push(newURL);
 		  }
   	}
-
-  	// Write transformed JSON data, now in CCMS, to a file called CCMSdata.json.
-	fs.writeFile(dataFile, JSON.stringify(newResources, null, 4), function(err) {
-	    if(err) {
-		console.log(err);
-	    } else {
-		console.log("The file was saved!");
-	    }
-	});
 	if(debug) {
 		console.log(newResources);
 	}	
   }
-
   // Otherwise, output error statement.
   else {
   	console.log("Could not fetch JSON data from API endpoint");
   }
+
+  async.whilst(function () {
+  return w < newResources.length;
+  },
+  function (next) {
+  	  //console.log(w);
+	  request(arrayURL[w].url, function (error, response, whoo) {
+	  if (!error && response.statusCode == 200) {
+	  // Parse JSON from API.
+		var resource = JSON.parse(whoo);
+		newResources[h].contactPoint = resource.division;
+		newResources[h].mbox = resource.contact_email;
+		newResources.pop(newResources[h]);
+		newResources.push(newResources[h]); 
+		h++;
+	  }
+	  w++;
+	  if (w < newResources.length)
+	  {
+	  	next();
+	  }
+	  else{
+	  	console.log("The file was saved!");
+	  }
+	  });
+	  fs.writeFile(dataFile, JSON.stringify(newResources, null, 4), function(err) {
+			if(err) {
+			console.log(err);
+			} 
+		});
+  });
 });
+
 
 

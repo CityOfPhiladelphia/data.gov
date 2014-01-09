@@ -4,7 +4,7 @@
   "description": "Parser for Open Data Philly to convert to CCMS format",
   "main": "parser.js",
   "dependencies": {
-    "request": "latest"
+    "request": "latest",
   },
   "repository": "",
   "author": "",
