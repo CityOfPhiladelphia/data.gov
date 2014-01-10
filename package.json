@@ -5,8 +5,9 @@
   "main": "parser.js",
   "dependencies": {
     "request": "latest",
+    "async": "latest"
   },
   "repository": "",
-  "author": "",
+  "author": "Hillary Do",
   "license": "BSD"
 }
