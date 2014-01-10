@@ -16,9 +16,11 @@ function stripSpaces(str) {
 // New array to hold CCMS JSON objects.
 var newResources = [];
 
+// New array to hold urls of resoures
 var arrayURL = [];
-var h = 0;
-var w = 0;
+
+// Counter to keep track of each resource and its details
+var counter = 0;
 
 // Fetch JSON from API endpoint.
 request(apiEndpoint, function (error, response, body) {
@@ -39,7 +41,7 @@ request(apiEndpoint, function (error, response, body) {
 		  	  // A new object to hold CCMS compliant JSON.
   		      var newResource = {};
 
-			  //rename properties to conform with CCMS
+			  // Rename properties to conform with CCMS
 			  newResource.title = resources[i].name;
 			  newResource.description = resources[i].short_description;
 			  var nameArray = [];
@@ -61,6 +63,7 @@ request(apiEndpoint, function (error, response, body) {
 			  // Push new JSON object onto new resource array.
 			  newResources.push(newResource);		  
 
+			  // Assign each url with a specific number in the array 'arrayURL'
 			  for (var k = 0; k < newResources.length; k++){
 			  	var newURL = {};
 			  	newURL.url = "http://www.opendataphilly.org" + resources[i].url;
@@ -77,37 +80,65 @@ request(apiEndpoint, function (error, response, body) {
   	console.log("Could not fetch JSON data from API endpoint");
   }
 
+  // Redefine function as synchronous so it goes through each resource in order
   async.whilst(function () {
-  return w < newResources.length;
+  return counter < newResources.length;
   },
   function (next) {
-  	  //console.log(w);
-	  request(arrayURL[w].url, function (error, response, whoo) {
+  	  // Fetch JSON from each of the resources' API endpoint
+	  request(arrayURL[counter].url, function (error, response, body2) {
+
 	  if (!error && response.statusCode == 200) {
-	  // Parse JSON from API.
-		var resource = JSON.parse(whoo);
-		newResources[h].contactPoint = resource.division;
-		newResources[h].mbox = resource.contact_email;
-		newResources.pop(newResources[h]);
-		newResources.push(newResources[h]); 
-		h++;
+	  	// Parse JSON from API.
+		var resource = JSON.parse(body2);
+
+		// Rename properties to conform with CCMS
+
+		// if empty division, fill with Office of Chief Data Officer
+		if (resource.division == ""){
+			newResources[counter].contactPoint = "Office of Chief Data Officer";
+		}
+		else{
+			newResources[counter].contactPoint = resource.division;
+		}
+		//if empty contact email fill with data@phila.gov
+		if (resource.contact_email == ""){
+			newResources[counter].mbox = "data@phila.gov";
+		}
+		else{
+		newResources[counter].mbox = resource.contact_email;
+		}
+
+		// Push new JSON object onto new resource array
+		newResources.push(newResources[counter]); 
+
+		// Pop previously pushed JSON objects
+		newResources.pop(newResources[counter]);
+
+		// Write transformed JSON data, now in CCMS, to a file called CCMSdata.json.
+		fs.writeFile(dataFile, JSON.stringify(newResources, null, 4), function(err) {
+	      if(err) {
+			console.log(err);
+	      } 
+	    });
+	    
+	    // Increment counter by one
+	    counter++;
 	  }
-	  w++;
-	  if (w < newResources.length)
+
+	  // If the resource # is less than # of resources, callback function next
+	  if (counter < newResources.length)
 	  {
 	  	next();
 	  }
+	  // When done, print the following
 	  else{
 	  	console.log("The file was saved!");
 	  }
 	  });
-	  fs.writeFile(dataFile, JSON.stringify(newResources, null, 4), function(err) {
-			if(err) {
-			console.log(err);
-			} 
-		});
   });
 });
+
 
 
 
