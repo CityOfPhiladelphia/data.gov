@@ -49,10 +49,6 @@ request(apiEndpoint, function (error, response, body) {
 				nameArray.push(resources[i].tags[j].name);
 			  }
 			  newResource.keyword = nameArray;
-			  if (resources[i].release_date == null)
-			  {
-			  	newResource.modified = null;
-			  }
 			  newResource.publisher = resources[i].organization;
 			  newResource.accessURL = "http://www.opendataphilly.org/opendata/resource/" + resources[i].id;
 
