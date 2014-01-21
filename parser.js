@@ -16,10 +16,10 @@ function stripSpaces(str) {
 // New array to hold CCMS JSON objects.
 var newResources = [];
 
-// New array to hold urls of resoures
+// New array to hold urls of resoures.
 var arrayURL = [];
 
-// Counter to keep track of each resource and its details
+// Counter to keep track of each resource and its details.
 var counter = 0;
 
 // Fetch JSON from API endpoint.
@@ -41,7 +41,7 @@ request(apiEndpoint, function (error, response, body) {
 		  	  // A new object to hold CCMS compliant JSON.
   		      var newResource = {};
 
-			  // Rename properties to conform with CCMS
+			  // Rename properties to conform with CCMS.
 			  newResource.title = resources[i].name;
 			  newResource.description = resources[i].short_description;
 			  var nameArray = [];
@@ -49,10 +49,9 @@ request(apiEndpoint, function (error, response, body) {
 				nameArray.push(resources[i].tags[j].name);
 			  }
 			  newResource.keyword = nameArray;
-			  newResource.modified = resources[i].release_date;
 			  if (resources[i].release_date == null)
 			  {
-			  	newResource.modified = "2014-01-01";
+			  	newResource.modified = null;
 			  }
 			  newResource.publisher = resources[i].organization;
 			  newResource.accessURL = "http://www.opendataphilly.org/opendata/resource/" + resources[i].id;
@@ -63,7 +62,7 @@ request(apiEndpoint, function (error, response, body) {
 			  // Push new JSON object onto new resource array.
 			  newResources.push(newResource);		  
 
-			  // Assign each url with a specific number in the array 'arrayURL'
+			  // Assign each url with a specific number in the array 'arrayURL'.
 			  for (var k = 0; k < newResources.length; k++){
 			  	var newURL = {};
 			  	newURL.url = "http://www.opendataphilly.org" + resources[i].url;
@@ -80,28 +79,28 @@ request(apiEndpoint, function (error, response, body) {
   	console.log("Could not fetch JSON data from API endpoint");
   }
 
-  // Redefine function as synchronous so it goes through each resource in order
+  // Redefine function as synchronous so it goes through each resource in order.
   async.whilst(function () {
   return counter < newResources.length;
   },
   function (next) {
-  	  // Fetch JSON from each of the resources' API endpoint
+  	  // Fetch JSON from each of the resources' API endpoint.
 	  request(arrayURL[counter].url, function (error, response, body2) {
 
 	  if (!error && response.statusCode == 200) {
 	  	// Parse JSON from API.
 		var resource = JSON.parse(body2);
 
-		// Rename properties to conform with CCMS
-
-		// if empty division, fill with Office of Chief Data Officer
+		// Rename properties to conform with CCMS.
+		newResources[counter].modified = resource.last_updated;
+		// If empty division, fill with Office of Chief Data Officer.
 		if (resource.division == ""){
 			newResources[counter].contactPoint = "Office of Chief Data Officer";
 		}
 		else{
 			newResources[counter].contactPoint = resource.division;
 		}
-		//if empty contact email fill with data@phila.gov
+		// If empty contact email fill with data@phila.gov.
 		if (resource.contact_email == ""){
 			newResources[counter].mbox = "data@phila.gov";
 		}
@@ -109,10 +108,10 @@ request(apiEndpoint, function (error, response, body) {
 		newResources[counter].mbox = resource.contact_email;
 		}
 
-		// Push new JSON object onto new resource array
+		// Push new JSON object onto new resource array.
 		newResources.push(newResources[counter]); 
 
-		// Pop previously pushed JSON objects
+		// Pop previously pushed JSON objects.
 		newResources.pop(newResources[counter]);
 
 		// Write transformed JSON data, now in CCMS, to a file called CCMSdata.json.
@@ -122,16 +121,16 @@ request(apiEndpoint, function (error, response, body) {
 	      } 
 	    });
 	    
-	    // Increment counter by one
+	    // Increment counter by one.
 	    counter++;
 	  }
 
-	  // If the resource # is less than # of resources, callback function next
+	  // If the resource # is less than # of resources, callback function next.
 	  if (counter < newResources.length)
 	  {
 	  	next();
 	  }
-	  // When done, print the following
+	  // When done, print the following.
 	  else{
 	  	console.log("The file was saved!");
 	  }
