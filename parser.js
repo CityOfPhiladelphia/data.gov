@@ -138,7 +138,3 @@ request(apiEndpoint, function (error, response, body) {
 	  });
   });
 });
-
-
-
-
