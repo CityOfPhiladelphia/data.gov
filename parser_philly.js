@@ -49,9 +49,23 @@ request(apiEndpoint, function (error, response, body) {
 				nameArray.push(resources[i].tags[j].name);
 			  }
 			  newResource.keyword = nameArray;
+			  newResource.issued = resources[i].release_date;
+			  if (resources[i].release_date == null)
+			  {
+			  	newResource.issued = null;
+			  }
 			  newResource.publisher = resources[i].organization;
 			  newResource.accessURL = "http://www.opendataphilly.org/opendata/resource/" + resources[i].id;
-
+			  newResource.temporal = resources[i].time_period;
+			  if (resources[i].time_period == "")
+			  {
+			  	newResource.temporal = null;
+			  }
+			  newResource.spatial = resources[i].area_of_interest;
+			  if (resources[i].area_of_interest == "")
+			  {
+			  	newResource.spatial = null;
+			  }
 			  newResource.identifier = "" + resources[i].id + "";
 			  newResource.accessLevel = "public";
 
@@ -88,7 +102,22 @@ request(apiEndpoint, function (error, response, body) {
 		var resource = JSON.parse(body2);
 
 		// Rename properties to conform with CCMS.
+		newResources[counter].accrualPeriodicity = resource.update_frequency;
+		if (resource.update_frequency == "")
+		{
+			newResources[counter].accrualPeriodicity = null;
+		}
+		newResources[counter].format = resource.data_types;
+		if (resource.data_types == "")
+		{
+			newResources[counter].format = null;
+		}
 		newResources[counter].modified = resource.last_updated;
+		newResources[counter].landingPage = resource.contact_url;
+		if (resource.contact_url == "")
+		{
+			newResources[counter].landingPage = null;
+		}
 		// If empty division, fill with Office of Chief Data Officer.
 		if (resource.division == ""){
 			newResources[counter].contactPoint = "Office of Chief Data Officer";
@@ -103,7 +132,6 @@ request(apiEndpoint, function (error, response, body) {
 		else{
 		newResources[counter].mbox = resource.contact_email;
 		}
-
 		// Push new JSON object onto new resource array.
 		newResources.push(newResources[counter]); 
 
@@ -133,3 +161,7 @@ request(apiEndpoint, function (error, response, body) {
 	  });
   });
 });
+
+
+
+
