@@ -101,8 +101,10 @@ request(apiEndpoint, function (error, response, body) {
 			newResources[counter].mbox = "data@phila.gov";
 		}
 		else{
-		newResources[counter].mbox = resource.contact_email;
+		newResources[counter].mbox = stripSpaces(resource.contact_email);
 		}
+
+		newResources[counter].license = resource.usage;
 
 		// Push new JSON object onto new resource array.
 		newResources.push(newResources[counter]); 
