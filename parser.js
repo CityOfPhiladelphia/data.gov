@@ -50,7 +50,7 @@ request(apiEndpoint, function (error, response, body) {
 			  }
 			  newResource.keyword = nameArray;
 			  newResource.publisher = resources[i].organization;
-			  newResource.accessURL = "http://www.opendataphilly.org/opendata/resource/" + resources[i].id;
+			  newResource.landingPage = "http://www.opendataphilly.org/opendata/resource/" + resources[i].id;
 
 			  newResource.identifier = "" + resources[i].id + "";
 			  newResource.accessLevel = "public";
